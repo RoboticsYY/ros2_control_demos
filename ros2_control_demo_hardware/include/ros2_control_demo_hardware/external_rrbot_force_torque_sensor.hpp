@@ -1,4 +1,4 @@
-// Copyright 2020 ros2_control Development Team
+// Copyright (c) 2021, Stogl Robotics Consulting UG (haftungsbeschränkt)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,8 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef ROS2_CONTROL_DEMO_HARDWARE__RRBOT_SYSTEM_POSITION_ONLY_HPP_
-#define ROS2_CONTROL_DEMO_HARDWARE__RRBOT_SYSTEM_POSITION_ONLY_HPP_
+//
+// Authors: Subhas Das, Denis Stogl
+//
+
+#ifndef ROS2_CONTROL_DEMO_HARDWARE__EXTERNAL_RRBOT_FORCE_TORQUE_SENSOR_HPP_
+#define ROS2_CONTROL_DEMO_HARDWARE__EXTERNAL_RRBOT_FORCE_TORQUE_SENSOR_HPP_
 
 #include <memory>
 #include <string>
@@ -21,33 +25,25 @@
 
 #include "hardware_interface/handle.hpp"
 #include "hardware_interface/hardware_info.hpp"
-#include "hardware_interface/system_interface.hpp"
+#include "hardware_interface/sensor_interface.hpp"
 #include "hardware_interface/types/hardware_interface_return_values.hpp"
 #include "rclcpp/macros.hpp"
-#include "rclcpp_lifecycle/node_interfaces/lifecycle_node_interface.hpp"
-#include "rclcpp_lifecycle/state.hpp"
 #include "ros2_control_demo_hardware/visibility_control.h"
 
-using CallbackReturn = rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn;
+using hardware_interface::return_type;
 
 namespace ros2_control_demo_hardware
 {
-class RRBotSystemPositionOnlyHardware : public hardware_interface::SystemInterface
+class ExternalRRBotForceTorqueSensorHardware : public hardware_interface::SensorInterface
 {
 public:
-  RCLCPP_SHARED_PTR_DEFINITIONS(RRBotSystemPositionOnlyHardware);
+  RCLCPP_SHARED_PTR_DEFINITIONS(ExternalRRBotForceTorqueSensorHardware);
 
   ROS2_CONTROL_DEMO_HARDWARE_PUBLIC
   CallbackReturn on_init(const hardware_interface::HardwareInfo & info) override;
 
   ROS2_CONTROL_DEMO_HARDWARE_PUBLIC
-  CallbackReturn on_configure(const rclcpp_lifecycle::State & previous_state) override;
-
-  ROS2_CONTROL_DEMO_HARDWARE_PUBLIC
   std::vector<hardware_interface::StateInterface> export_state_interfaces() override;
-
-  ROS2_CONTROL_DEMO_HARDWARE_PUBLIC
-  std::vector<hardware_interface::CommandInterface> export_command_interfaces() override;
 
   ROS2_CONTROL_DEMO_HARDWARE_PUBLIC
   CallbackReturn on_activate(const rclcpp_lifecycle::State & previous_state) override;
@@ -56,22 +52,18 @@ public:
   CallbackReturn on_deactivate(const rclcpp_lifecycle::State & previous_state) override;
 
   ROS2_CONTROL_DEMO_HARDWARE_PUBLIC
-  hardware_interface::return_type read() override;
-
-  ROS2_CONTROL_DEMO_HARDWARE_PUBLIC
-  hardware_interface::return_type write() override;
+  return_type read() override;
 
 private:
   // Parameters for the RRBot simulation
   double hw_start_sec_;
   double hw_stop_sec_;
-  double hw_slowdown_;
+  double hw_sensor_change_;
 
-  // Store the command for the simulated robot
-  std::vector<double> hw_commands_;
-  std::vector<double> hw_states_;
+  // Store the sensor states for the simulated robot
+  std::vector<double> hw_sensor_states_;
 };
 
 }  // namespace ros2_control_demo_hardware
 
-#endif  // ROS2_CONTROL_DEMO_HARDWARE__RRBOT_SYSTEM_POSITION_ONLY_HPP_
+#endif  // ROS2_CONTROL_DEMO_HARDWARE__EXTERNAL_RRBOT_FORCE_TORQUE_SENSOR_HPP_
