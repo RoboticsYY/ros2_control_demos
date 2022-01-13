@@ -10,6 +10,22 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra)
 endif()
 
+# Find shmringbuf
+set(LIBSHM_ROOT_DIR "/usr/local" CACHE PATH "Root directory of libshm.")
+execute_process(COMMAND find ${LIBSHM_ROOT_DIR}/include -name "shmringbuf.h"
+                COMMAND head -n 1
+                COMMAND xargs dirname
+                OUTPUT_VARIABLE LIBSHM_INCLUDE_DIRS OUTPUT_STRIP_TRAILING_WHITESPACE)
+execute_process(COMMAND find ${LIBSHM_ROOT_DIR}/lib -name "*libshmringbuf.so"
+                COMMAND head -n 1
+                OUTPUT_VARIABLE LIBSHM_LIBRARIES OUTPUT_STRIP_TRAILING_WHITESPACE)
+message(STATUS "LIBSHM_INCLUDE_DIRS: ${LIBSHM_INCLUDE_DIRS}")
+message(STATUS "LIBSHM_LIBRARIES: ${LIBSHM_LIBRARIES}")
+
+include_directories(
+  ${LIBSHM_INCLUDE_DIRS}
+)
+
 # find dependencies
 find_package(ament_cmake REQUIRED)
 find_package(hardware_interface REQUIRED)
@@ -24,6 +40,7 @@ add_library(
   src/rrbot_system_position_only.cpp
   src/rrbot_system_multi_interface.cpp
   src/rrbot_system_with_sensor.cpp
+  src/rrbot_system_igh.cpp
 )
 target_include_directories(
   ${PROJECT_NAME}
@@ -36,6 +53,8 @@ ament_target_dependencies(
   pluginlib
   rclcpp
 )
+
+target_link_libraries(${PROJECT_NAME} ${LIBSHM_LIBRARIES})
 
 pluginlib_export_plugin_description_file(hardware_interface ros2_control_demo_hardware.xml)
 
